@@ -1,0 +1,76 @@
+@import '../variables';
+
+
+@mixin scrollbars($size, $foreground-color, $background-color: mix($foreground-color, white, 50%)) {
+    ::-webkit-scrollbar {
+        width:  $size;
+        height: $size;
+    }
+  
+    ::-webkit-scrollbar-thumb {
+        background: $foreground-color;
+    }
+  
+    ::-webkit-scrollbar-track {
+        background: $background-color;
+    }
+  
+    // For Internet Explorer
+    body {
+      scrollbar-face-color: $foreground-color;
+      scrollbar-track-color: $background-color;
+    }
+  }
+
+.groupPanel{
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 250px;
+}
+.groups{
+    display: flex;
+    flex-direction: row;
+    overflow-x: scroll;
+    padding: 2px;
+    /* @include scrollbars(2px, slategray); */
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(9, 9, 145, 0.5);
+        border-radius: 3px;
+        &:hover {
+         background: rgba(9, 9, 145, 0.8);
+        }
+    }
+
+    li {
+        padding: 4px;
+        margin: 2px;
+        white-space: nowrap;
+        border: solid 1px $border-gray;
+        &:hover{
+            background-color: $orange;
+            color: white;
+            cursor: pointer;
+            h4{
+                color: white;
+            }
+        }
+
+        h4{
+            font-weight: 100;
+        }
+    }
+
+    .selected{
+    }
+}
+
+.groupSelected{
+    background-color: $orange;
+    h4{
+        color: white;
+    }
+}
