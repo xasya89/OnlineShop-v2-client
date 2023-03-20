@@ -2,75 +2,96 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { useSelector } from "react-redux";
 import $api from "../../http/api";
 import styles from "./inventory.module.scss"
+import InventoryChangeGood from "./InventoryChangeGood";
+import InventoryChangeGroups from "./InventoryChangeGroups";
 
+let barcode = "";
+let prevKeyDown = undefined;
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 export default function InventoryChange({inventory, setInventory}){
     const shopId = useSelector(state=>state.shop.value.id);
     const [selectGroup, setSelectGroup] = useState(null);
-    const selectedGroupRef = useRef();
-    const [newGroupName, setNewGroupName] = useState("");
-    useLayoutEffect(()=>selectedGroupRef.current && selectedGroupRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-    }), [inventory]);
     
-    const [barcode, setBarCode] = useState("");
     const keyDownHandle = useCallback(({key})=>{
-        const getGood = async (barcode) => {
+        const getGood = async () => {
             try{
                 const resp = await $api.get(`/${shopId}/goods/scan/${barcode}`);
+                const goodScan = resp.data;
+                setInventory(prev => {
+                    let group = prev.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0];
+                    let goods = group.inventoryGoods;
+                    if(goods.filter(g=>g.goodId === goodScan.id).length===0)
+                        group.inventoryGoods = [...goods, {id:0, goodId: goodScan.id, goodName: goodScan.name, price: goodScan.price, countFact: null, countAppend: null, uuid: getRandomInt(0, 10000)}];
+                    else
+                        group.inventoryGoods = [...goods];
+                    /*
+                    else
+                        group.inventoryGoods = goods.map(g=>{
+                            if(g.goodId===goodScan.goodId){
+                                if(goodScan.countFact){
+                                    if(!isNaN(parseFloat(goodScan.countFact))) // Добавить проыерку, что это штучный товар
+                                        goodScan.countFact=parseFloat(goodScan.countFact) + 1;
+                                }
+                            }
+                            return {...g};
+                        });
+                    */
+                    return {...prev};
+                })
             }catch({response}){
                 if(response?.status===500 && response.data.type=="ServiceError")
                     alert(response.data.message);
             }
-            setBarCode("");
+            barcode="";
         }
+        
+        if(keyDownHandle!==undefined && Date.now() - prevKeyDown > 150)
+            barcode="";
 
         if(!isNaN(parseInt(key)))
-            setBarCode(prev=>`${prev}${key}`);
-        if(key==="Enter")
-            getGood(barcode);
+            barcode = `${barcode}${key}`;
+        if(key==="Enter" && barcode.length>4)
+            getGood();
+        prevKeyDown = Date.now();
     })
     useEffect(()=>{
         window.addEventListener("keydown", keyDownHandle);
         return () => window.removeEventListener("keydown", keyDownHandle);
     }, [keyDownHandle]);
-
-    const hasSelectedGroup = (group) => selectGroup?.id==group.id ? styles.groupSelected : "";
-
     
+    const getGoods = () => {
+        if(inventory==null)
+            return [];
+        const group = inventory?.inventoryGroups?.filter(gr=>gr.id===selectGroup?.id)[0];
 
-    const addGroup = async () => {
-        try{
-            const response = await $api.post(`/${shopId}/inventory/${inventory.id}/addgroup`,{name:newGroupName});
-            setInventory(prev=>{
-                const oldGroups = prev.inventoryGroups.map(item=>{return {...item}; });
-                oldGroups.push({id: response.data.id, name: response.data.name});
-                return {...prev, inventoryGroups: oldGroups}
-            });
-            setNewGroupName("");
-        }
-        catch({response}){
-            alert(response.message);
-        }
+        return group?.inventoryGoods ?? [];
     }
-
-    const groupsCount = inventory?.inventoryGroups?.length ?? -1;
+    
     return (
-        <div className={styles.groupPanel}>
-                <ul className={styles.groups}>
-                    {inventory?.inventoryGroups.map((gr, i)=> {
-                        console.log(groupsCount);
-                        if(groupsCount-1==i)
-                            return (<li ref={selectedGroupRef} onClick={()=>setSelectGroup(gr)} key={gr.id} className={hasSelectedGroup(gr)}><h4>{gr.name}</h4></li>);
-                        else
-                            return <li onClick={()=>setSelectGroup(gr)} key={gr.id} className={hasSelectedGroup(gr)}><h4>{gr.name}</h4></li>;
-                    })}
-                </ul>
-                <div>
-                    <input value={newGroupName} onChange={e=>setNewGroupName(e.target.value)}/>
-                    <button onClick={()=>addGroup()}>Добавить</button>
-                </div>
-        </div>
+        <>
+            <InventoryChangeGroups inventory={inventory} setInventory={setInventory} selectGroup={selectGroup} setSelectGroup={setSelectGroup} />
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Товар</th>
+                            <th>Цена</th>
+                            <th>Кол-во</th>
+                            <th>Изменен</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        { getGoods().map((good, i)=>
+                            <InventoryChangeGood key={good.uuid} groupId={selectGroup?.id} good={good} setInventory={setInventory} />
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </>
     )
 }

@@ -32,7 +32,7 @@ export default function MenuSelect(){
             {
                 optionsVisible && (
                     <ul>
-                        {shops.map(shop => <li onClick={()=> handleSelected(shop)}>{shop.alias}</li>)}
+                        {shops.map(shop => <li key={shop.id} onClick={()=> handleSelected(shop)}>{shop.alias}</li>)}
                     </ul>
                 )
             }
