@@ -1,3 +1,4 @@
+import { Button, Input } from "antd";
 import { useEffect, useLayoutEffect, useRef, useState } 
 from "react";import $api from "../../http/api";
 import styles from "./inventory.module.scss"
@@ -51,8 +52,7 @@ export default function InventoryChangeGroups ({inventory, setInventory, selectG
                 })}
             </ul>
             <div>
-                <input value={newGroupName} onChange={e=>setNewGroupName(e.target.value)}/>
-                <button onClick={()=>addGroup()}>Добавить</button>
+                <Input value={newGroupName} onChange={e=>setNewGroupName(e.target.value)} addonAfter={<span onClick={()=>addGroup()} style={{cursor: "pointer"}}>Добавить</span>} />
             </div>
         </div>
     )

@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux";
+import { Button, Space } from 'antd';
 import $api from "../../http/api";
 import styles from "./inventory.module.scss"
 import InventoryChangeGood from "./InventoryChangeGood";
+import InventoryChangeGoodSelector from "./InventoryChangeGoodSelector";
 import InventoryChangeGroups from "./InventoryChangeGroups";
+import { STATUS_ADD, STATUS_DELETE, STATUS_EDIT, STATUS_LOAD } from "./InventoryChangeGoodStatus";
+import { useNavigate } from "react-router-dom";
 
 let barcode = "";
 let prevKeyDown = undefined;
@@ -14,6 +18,7 @@ function getRandomInt(min, max) {
 }
 
 export default function InventoryChange({inventory, setInventory}){
+    const navigate = useNavigate();
     const shopId = useSelector(state=>state.shop.value.id);
     const [selectGroup, setSelectGroup] = useState(null);
     
@@ -21,28 +26,7 @@ export default function InventoryChange({inventory, setInventory}){
         const getGood = async () => {
             try{
                 const resp = await $api.get(`/${shopId}/goods/scan/${barcode}`);
-                const goodScan = resp.data;
-                setInventory(prev => {
-                    let group = prev.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0];
-                    let goods = group.inventoryGoods;
-                    if(goods.filter(g=>g.goodId === goodScan.id).length===0)
-                        group.inventoryGoods = [...goods, {id:0, goodId: goodScan.id, goodName: goodScan.name, price: goodScan.price, countFact: null, countAppend: null, uuid: getRandomInt(0, 10000)}];
-                    else
-                        group.inventoryGoods = [...goods];
-                    /*
-                    else
-                        group.inventoryGoods = goods.map(g=>{
-                            if(g.goodId===goodScan.goodId){
-                                if(goodScan.countFact){
-                                    if(!isNaN(parseFloat(goodScan.countFact))) // Добавить проыерку, что это штучный товар
-                                        goodScan.countFact=parseFloat(goodScan.countFact) + 1;
-                                }
-                            }
-                            return {...g};
-                        });
-                    */
-                    return {...prev};
-                })
+                addGood(resp.data);
             }catch({response}){
                 if(response?.status===500 && response.data.type=="ServiceError")
                     alert(response.data.message);
@@ -71,11 +55,85 @@ export default function InventoryChange({inventory, setInventory}){
 
         return group?.inventoryGoods ?? [];
     }
+
+    const addGood = good => {
+        
+        setInventory(prev => {
+            let group = prev.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0];
+            let goods = group.inventoryGoods;
+            if(goods.filter(g=>g.goodId === good.id).length===0)
+                group.inventoryGoods = [...goods, {
+                    id:0, 
+                    goodId: good.id, 
+                    goodName: good.name, 
+                    price: good.price, 
+                    countFact: null, 
+                    countAppend: null, 
+                    uuid: getRandomInt(0, 10000),
+                    state: STATUS_ADD
+                }];
+            else
+                group.inventoryGoods = [...goods];
+            /*
+            else
+                group.inventoryGoods = goods.map(g=>{
+                    if(g.goodId===goodScan.goodId){
+                        if(goodScan.countFact){
+                            if(!isNaN(parseFloat(goodScan.countFact))) // Добавить проыерку, что это штучный товар
+                                goodScan.countFact=parseFloat(goodScan.countFact) + 1;
+                        }
+                    }
+                    return {...g};
+                });
+            */
+            return {...prev};
+        })
+    }
+
+    const saveGoods = async () => {
+        let chandgeArr  =[];
+        inventory.inventoryGroups.forEach(group => {
+            chandgeArr = chandgeArr.concat(group.inventoryGoods
+                .filter(g=>g.state!==STATUS_LOAD)
+                .map(g=>{ return {id: g.id, groupId: group.id, goodId: g.goodId, countFact: g.countFact, state: g.state} }));
+        });
+        try{
+            const resp = (await $api.post(`/${shopId}/inventory/${inventory.id}/goods`, chandgeArr)).data;
+            setInventory(prev => {
+                prev.inventoryGroups = prev.inventoryGroups.map(gr=>{
+                    gr.inventoryGoods = gr.inventoryGoods
+                        .filter(g=>g.state!==STATUS_DELETE)
+                        .map(g=>{
+                            if(g.state===STATUS_ADD){
+                                let goodResp = resp.filter(r=> r.groupId===gr.id & r.goodId===g.goodId)[0];
+                                return {...g, id:goodResp.id, state: STATUS_LOAD};
+                            }
+                            return {...g, state: STATUS_LOAD};
+                        });
+                    return {...gr};
+                })
+                return {...prev};
+            })
+        }
+        catch(e){
+            alert(e);
+        }
+    }
+
+    const cancel = () => navigate("/documents/inventorylist");
     
     return (
         <>
+            <Space wrap size="large" style={{marginBottom: "20px"}}>
+                <Button type="primary" size="default" onClick={saveGoods}>Созранить</Button>
+                <Button size="default" onClick={cancel}>Закрыть</Button>
+            </Space>
             <InventoryChangeGroups inventory={inventory} setInventory={setInventory} selectGroup={selectGroup} setSelectGroup={setSelectGroup} />
             <div>
+                    
+                <div style={{margin: "5px"}}>
+                    <InventoryChangeGoodSelector onChange={addGood}/>
+                </div>
                 <table>
                     <thead>
                         <tr>
