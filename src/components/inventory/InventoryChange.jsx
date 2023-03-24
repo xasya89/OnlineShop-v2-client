@@ -121,6 +121,23 @@ export default function InventoryChange({inventory, setInventory}){
         }
     }
 
+    const complite = async () => {
+        let chandgeArr  =[];
+        inventory.inventoryGroups.forEach(group => {
+            chandgeArr = chandgeArr.concat(group.inventoryGoods
+                .filter(g=>g.state!==STATUS_LOAD)
+                .map(g=>{ return {id: g.id, groupId: group.id, goodId: g.goodId, countFact: g.countFact, state: g.state} }));
+        });
+        try{
+            const resp = await $api.post(`/${shopId}/inventory/${inventory.id}/complite`, chandgeArr);
+            if(resp.status==200)
+                navigate("/documents/inventorylist");
+        }
+        catch(e){
+            alert(e);
+        }
+    }
+
     const cancel = () => navigate("/documents/inventorylist");
     
     return (
@@ -128,6 +145,7 @@ export default function InventoryChange({inventory, setInventory}){
             <Space wrap size="large" style={{marginBottom: "20px"}}>
                 <Button type="primary" size="default" onClick={saveGoods}>Созранить</Button>
                 <Button size="default" onClick={cancel}>Закрыть</Button>
+                <Button type="danger" onClick={complite} size="default">Завершить</Button>
             </Space>
             <InventoryChangeGroups inventory={inventory} setInventory={setInventory} selectGroup={selectGroup} setSelectGroup={setSelectGroup} />
             <div>

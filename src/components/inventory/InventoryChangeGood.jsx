@@ -1,4 +1,4 @@
-import { Input } from "antd";
+import { Input, InputNumber } from "antd";
 import debounce from "lodash.debounce";
 import { useCallback, useEffect, useRef, useState } from "react"
 import { STATUS_ADD, STATUS_DELETE, STATUS_EDIT, STATUS_LOAD } from "./InventoryChangeGoodStatus";
@@ -32,7 +32,7 @@ export default function InventoryChangeGood({groupId, good, setInventory}) {
             setInitState(true);
     }, [value]);
 
-    return <Input value={value} onChange={e=>setValue(e.target.value.replace(",","."))} />
+    return <Input type="n" value={value} onChange={e=>setValue(e.target.value.replace(",","."))} />
 
     return (
         <tr>
