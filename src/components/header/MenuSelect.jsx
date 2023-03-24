@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import $api from '../../http/api';
 import { fetchShops, setShop, shopSelector } from '../../redux/shopSlice';
@@ -9,7 +9,7 @@ export default function MenuSelect(){
     const [shops, setShops] = useState([]);
     const shop = useSelector(shopSelector);
     const dispatch = useDispatch();
-    useEffect(() => {
+    useLayoutEffect(() => {
         const getShops = async () => {
             const resp = await $api.get("/shops");
             setShops(resp.data);
