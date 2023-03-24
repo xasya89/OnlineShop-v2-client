@@ -15,6 +15,7 @@ import LoginPage from './pages/login-page/LoginPage';
 import InventoryListPage from './pages/inventorylist-page/InventoryListPage';
 import InventoryPage from './pages/inventory-page/inventoryPage';
 
+document.title = "Online shop v2";
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const router = createBrowserRouter([
   {
