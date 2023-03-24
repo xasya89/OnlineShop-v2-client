@@ -74,3 +74,12 @@
         color: white;
     }
 }
+
+.tableDiv{
+    overflow-y: scroll;
+    overflow-x: scroll;
+    @include breakpoint(md){
+        overflow-y:auto;
+        overflow-x: auto;
+    }
+}

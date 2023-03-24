@@ -8,6 +8,7 @@ import InventoryChangeGoodSelector from "./InventoryChangeGoodSelector";
 import InventoryChangeGroups from "./InventoryChangeGroups";
 import { STATUS_ADD, STATUS_DELETE, STATUS_EDIT, STATUS_LOAD } from "./InventoryChangeGoodStatus";
 import { useNavigate } from "react-router-dom";
+import InventoryChangeGoods from "./InventoryChangeGoods";
 
 let barcode = "";
 let prevKeyDown = undefined;
@@ -134,21 +135,7 @@ export default function InventoryChange({inventory, setInventory}){
                 <div style={{margin: "5px"}}>
                     <InventoryChangeGoodSelector onChange={addGood}/>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Товар</th>
-                            <th>Цена</th>
-                            <th>Кол-во</th>
-                            <th>Изменен</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        { getGoods().map((good, i)=>
-                            <InventoryChangeGood key={good.uuid} groupId={selectGroup?.id} good={good} setInventory={setInventory} />
-                        )}
-                    </tbody>
-                </table>
+                <InventoryChangeGoods groupId={selectGroup?.id} goods={getGoods()} setInventory={setInventory} />
             </div>
         </>
     )

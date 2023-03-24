@@ -1,6 +1,9 @@
+import { Input } from "antd";
 import debounce from "lodash.debounce";
 import { useCallback, useEffect, useRef, useState } from "react"
 import { STATUS_ADD, STATUS_DELETE, STATUS_EDIT, STATUS_LOAD } from "./InventoryChangeGoodStatus";
+
+
 
 export default function InventoryChangeGood({groupId, good, setInventory}) {
     const [value, setValue] = useState(good.countFact ?? "");
@@ -28,6 +31,8 @@ export default function InventoryChangeGood({groupId, good, setInventory}) {
         else
             setInitState(true);
     }, [value]);
+
+    return <Input value={value} onChange={e=>setValue(e.target.value.replace(",","."))} />
 
     return (
         <tr>
