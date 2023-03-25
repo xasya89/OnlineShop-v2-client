@@ -1,7 +1,8 @@
 import axios from "axios";
 
-export const API_URL = "https://172.172.172.46:7259/api";
-//export const API_URL = "/api";
+const isDev = process.env.NODE_ENV.trim() === "development";
+//export const API_URL = isDev ? "https://172.172.172.46:7259/api" : "/api";
+export const API_URL = process.env.REACT_APP_SERVER_API;
 
 const $api = axios.create({
     withCredentials: true,
@@ -13,6 +14,7 @@ $api.interceptors.request.use(config => {
     return config;
 })
 
+
 $api.interceptors.response.use(config => {
     return config;
 }, async error => {
@@ -21,7 +23,7 @@ $api.interceptors.response.use(config => {
         try{
 
             var resp = await axios.post(API_URL + "/refreshlogin");
-            sessionStorage.setItem("user-id", resp.data.refreshToken);
+            sessionStorage.setItem("user-id", resp.data.token);
             return $api.request(originalRequest);
         }
         catch(e){
