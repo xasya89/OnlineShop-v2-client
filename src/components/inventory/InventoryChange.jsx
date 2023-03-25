@@ -58,7 +58,8 @@ export default function InventoryChange({inventory, setInventory}){
     }
 
     const addGood = good => {
-        
+        if(!selectGroup)
+            return;
         setInventory(prev => {
             let group = prev.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0];
             let goods = group.inventoryGoods;
