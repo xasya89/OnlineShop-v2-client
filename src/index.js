@@ -14,6 +14,7 @@ import Auth from './components/infrastructure/Auth';
 import LoginPage from './pages/login-page/LoginPage';
 import InventoryListPage from './pages/inventorylist-page/InventoryListPage';
 import InventoryPage from './pages/inventory-page/inventoryPage';
+import InventoryViewPage from './pages/inventory-view-page/InventoryViewPage';
 
 document.title = "Online shop v2";
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
         element: <Auth><InventoryPage /></Auth>
       },
       */
+      {
+        path:"documents/inventory-view/:id?",
+        element: <Auth><InventoryViewPage /></Auth>
+      },
       {
         path:"documents/inventory/:id?",
         element: <Auth><InventoryPage /></Auth>
