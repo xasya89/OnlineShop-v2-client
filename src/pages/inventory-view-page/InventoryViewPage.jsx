@@ -1,4 +1,4 @@
-import { Checkbox, Input, Table } from "antd";
+import { Button, Checkbox, Input, Table } from "antd";
 import debounce from "lodash.debounce";
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux";
@@ -19,17 +19,17 @@ const columns = [
     {
         title: "Было",
         dataIndex: "countOld",
-        render: (goodName) => goodName
+        render: (countOld) => countOld
     },
     {
         title: "Текущее",
         dataIndex: "countCurrent",
-        render: (goodName) => goodName
+        render: (countCurrent) => countCurrent
     },
     {
         title: "Разница",
         dataIndex: "countDiff",
-        render: (goodName) => goodName
+        render: (countDiff) => countDiff
     },
     {
         title: "Сумма",
@@ -37,6 +37,57 @@ const columns = [
         render: (priceDiif) => priceDiif
     },
 ]
+
+const printInventory = async (shopId, id, {search, diffFlag}) => {
+  const newWindow= window.open();
+  newWindow.document.head.innerHTML = `
+  <style>
+  table {
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #dddddd;
+    border-collapse: collapse; 
+  }
+  table th {
+    font-weight: bold;
+    padding: 5px;
+    background: #efefef;
+    border: 1px solid #dddddd;
+  }
+  table td {
+    border: 1px solid #dddddd;
+    padding: 2px;
+  }
+  </style>
+  `;
+  const resp = await $api.get(`/${shopId}/inventory-view/${id}?search=${search}&isDiff=${diffFlag}`);
+  let trList = newWindow.document.createElement("tbody");
+  resp.data.inventorySummaryGoods.forEach(summary =>{
+    const tr = newWindow.document.createElement("tr");
+    tr.innerHTML=`<td>${summary.goodName}</td>
+    <td>${summary.price}</td>
+    <td>${summary.countOld}</td>
+    <td>${summary.countCurrent}</td>
+    <td>${summary.countDiff}</td>
+    <td>${summary.priceDiif}</td>`;
+    trList.append(tr);
+  });
+  const table = newWindow.document.createElement("table");
+  table.setAttribute('border','1');
+  table.innerHTML = `<thead>
+    <tr>
+      <th rowspan='2'>Товар</th>
+      <th rowspan='2'>Цена</th>
+      <th>Кол-во было</th>
+      <th>Кол-во факт</th>
+      <th rowspan='2'>Расх кол-во</th>
+      <th rowspan='2'>Расх руб</th>
+    </tr>
+  </thead>`;
+  table.append(trList);
+  newWindow.document.body.appendChild(table);
+  newWindow.print();
+}
 
 export default function InventoryViewPage () {
     const {id} = useParams();
@@ -93,6 +144,8 @@ export default function InventoryViewPage () {
     const handleChangeSearch = useRef( value=> setTableParams({...tableParams, search: value}));
     return (
         <div>
+
+            <Button onClick={e=>printInventory(shopId, id, tableParams)}>print</Button>
             <Input  onInput={e => { handleChangeSearch.current(e.target.value); }} placeholder="поиск" />
             <Checkbox checked={tableParams.diffFlag} onChange={e=>setTableParams({...tableParams, diffFlag: e.target.checked})}>Отображать только расхождение</Checkbox>
             <Table columns={columns} dataSource={data} rowKey={(record)=>record.id} loading={isLoading} pagination={tableParams.pagination} onChange={handleTableChange}/>
