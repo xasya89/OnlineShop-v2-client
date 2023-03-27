@@ -94,6 +94,14 @@ export default function InventoryViewPage () {
     const shopId = useSelector(state=>state.shop.value.id);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [inventory, setInventory] = useState({
+      start: "",
+      stop: "",
+      sumDb: 0,
+      sumFact: 0,
+      cashMoneyDb: 0,
+      cashMoneyFact: 0
+    })
     const [tableParams, setTableParams] = useState({
         search: "",
         diffFlag: true,
@@ -106,6 +114,8 @@ export default function InventoryViewPage () {
     const fetchData = async () => {
         setIsLoading(true);
         const resp = await $api.get(`/${shopId}/inventory-view/${id}?search=${tableParams.search}&page=${tableParams.pagination.current}&pageSize=${tableParams.pagination.pageSize}&isDiff=${tableParams.diffFlag}`);
+        const {startStr, stopStr, sumDb, sumFact, cashMoneyDb, cashMoneyFact} = resp.data;
+        setInventory({start: startStr, stop: stopStr, sumDb, sumFact, cashMoneyDb, cashMoneyFact});
         setData(resp.data.inventorySummaryGoods);
         setIsLoading(false);
         setTableParams({
@@ -124,30 +134,20 @@ export default function InventoryViewPage () {
           ...sorter,
         });
     
-        // `dataSource` is useless since `pageSize` changed
         if (pagination.pageSize !== tableParams.pagination?.pageSize) {
           setData([]);
         }
       };
       
     useEffect(()=> { fetchData() }, [JSON.stringify(tableParams)]);
-    /*
-    const handleChangeSearch = useRef(value => { console.log(value); debounce(() => { console.log("Debounce", value); setSearch(value) }, 300) });
-    useEffect(()=> handleChangeSearch.current(searchValue), [searchValue])
-   */
-  /*
-    const handleChangeSearch = useCallback( e =>{
-        setSearchValue(e.target.value);
-        debounce(()=>{ console.log("debounce"); fetchData() }, 300);
-    }, []);
-*/
     const handleChangeSearch = useRef( value=> setTableParams({...tableParams, search: value}));
     return (
         <div>
-
-            <Button onClick={e=>printInventory(shopId, id, tableParams)}>print</Button>
-            <Input  onInput={e => { handleChangeSearch.current(e.target.value); }} placeholder="поиск" />
+            <h4 style={{textAlign: "center"}}>Инвенторизация № {id} от {inventory.start} - {inventory.stop}</h4>
+            <h4 style={{textAlign: "center"}}>Расхождение {(inventory.sumFact - inventory.sumDb)}р. Денег в кассе разница: {(inventory.cashMoneyFact - inventory.cashMoneyDb)}</h4>
+            <Button onClick={e=>printInventory(shopId, id, tableParams)} style={{marginLeft: "10px", marginBottom: "5px"}}>Печать</Button>
             <Checkbox checked={tableParams.diffFlag} onChange={e=>setTableParams({...tableParams, diffFlag: e.target.checked})}>Отображать только расхождение</Checkbox>
+            <Input  onInput={e => { handleChangeSearch.current(e.target.value); }} placeholder="поиск" />
             <Table columns={columns} dataSource={data} rowKey={(record)=>record.id} loading={isLoading} pagination={tableParams.pagination} onChange={handleTableChange}/>
         </div>
     )
