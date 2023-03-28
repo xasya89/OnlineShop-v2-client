@@ -2,6 +2,7 @@ import { Button, Input } from "antd";
 import { useEffect, useLayoutEffect, useRef, useState } 
 from "react";import $api from "../../http/api";
 import styles from "./inventory.module.scss"
+import InventoryChangeGroup from "./InventoryChangeGroupEdit";
 
 export default function InventoryChangeGroups ({inventory, setInventory, selectGroup, setSelectGroup}){
     const selectedGroupRef = useRef();
@@ -18,12 +19,12 @@ export default function InventoryChangeGroups ({inventory, setInventory, selectG
             setFirstRender(true);
         }
     }, [inventory, firstRender]);
-
+    /*
     useLayoutEffect(()=>selectedGroupRef.current && selectedGroupRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
     }), [selectGroup]);
-
+    */
     const addGroup = async () => {
         try{
             const response = await $api.post(`/${inventory.shopId}/inventory/${inventory.id}/addgroup`,{name:newGroupName});
@@ -50,6 +51,11 @@ export default function InventoryChangeGroups ({inventory, setInventory, selectG
                     else
                         return <li onClick={()=>setSelectGroup({...gr})} key={gr.id} className={hasSelectedClass(gr)}><h4>{gr.name}</h4></li>;
                 })}
+            </ul>
+            <ul className={styles.groups}>
+                {inventory?.inventoryGroups.map((gr, i)=>
+                    <InventoryChangeGroup shopId={inventory.shopId} inventoryId={inventory.id} setInventory={setInventory}  group={gr} setSelectGroup={setSelectGroup} key={gr.id} isSelected={(selectGroup?.id==gr.id)} />
+                    )}
             </ul>
             <div>
                 <Input value={newGroupName} onChange={e=>setNewGroupName(e.target.value)} addonAfter={<span onClick={()=>addGroup()} style={{cursor: "pointer"}}>Добавить</span>} />
