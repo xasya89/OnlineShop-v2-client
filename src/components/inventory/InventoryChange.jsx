@@ -57,39 +57,53 @@ export default function InventoryChange({inventory, setInventory}){
         return group?.inventoryGoods ?? [];
     }
 
-    const addGood = good => {
+    const addGood = async good => {
         if(!selectGroup)
             return;
-        setInventory(prev => {
-            let group = prev.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0];
-            let goods = group.inventoryGoods;
-            if(goods.filter(g=>g.goodId === good.id).length===0)
-                group.inventoryGoods = [...goods, {
-                    id:0, 
-                    goodId: good.id, 
-                    goodName: good.name, 
-                    price: good.price, 
-                    countFact: null, 
-                    countAppend: null, 
-                    uuid: getRandomInt(0, 10000),
-                    state: STATUS_ADD
-                }];
-            else
-                group.inventoryGoods = [...goods];
-            /*
-            else
-                group.inventoryGoods = goods.map(g=>{
-                    if(g.goodId===goodScan.goodId){
-                        if(goodScan.countFact){
-                            if(!isNaN(parseFloat(goodScan.countFact))) // Добавить проыерку, что это штучный товар
-                                goodScan.countFact=parseFloat(goodScan.countFact) + 1;
+        //Проверим не сущесвует в выбранной группе
+        let group = inventory.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0];
+        let goodAppended = group.inventoryGoods.filter(g=>g.id==good.id);
+        if(goodAppended.length!==0)
+            return;
+        try{
+            const resp = (await $api.post(`/${shopId}/inventory/${inventory.id}/goods`, 
+                [{id: 0, groupId: group.id, goodId: good.id, countFact: 0, state: STATUS_ADD}]
+            )).data;
+        
+            setInventory(prev => {
+                let group = prev.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0];
+                let goods = group.inventoryGoods;
+                if(goods.filter(g=>g.goodId === good.id).length===0)
+                    group.inventoryGoods = [...goods, {
+                        id:resp[0].id, 
+                        goodId: good.id, 
+                        goodName: good.name, 
+                        price: good.price, 
+                        countFact: null, 
+                        countAppend: null, 
+                        uuid: getRandomInt(0, 10000),
+                        state: STATUS_EDIT
+                    }];
+                else
+                    group.inventoryGoods = [...goods];
+                /*
+                else
+                    group.inventoryGoods = goods.map(g=>{
+                        if(g.goodId===goodScan.goodId){
+                            if(goodScan.countFact){
+                                if(!isNaN(parseFloat(goodScan.countFact))) // Добавить проыерку, что это штучный товар
+                                    goodScan.countFact=parseFloat(goodScan.countFact) + 1;
+                            }
                         }
-                    }
-                    return {...g};
-                });
-            */
-            return {...prev};
-        })
+                        return {...g};
+                    });
+                */
+                return {...prev};
+            })
+        }
+        catch(e){
+            console.error("Ошибка добавления товара", e);
+        }
     }
 
     const saveGoods = async () => {

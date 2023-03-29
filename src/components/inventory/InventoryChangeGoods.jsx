@@ -23,11 +23,19 @@ export default function InventoryChangeGoods({groupId, goods, setInventory }){
             render: (text, record) => <InventoryChangeGood key={record.uuid} groupId={groupId} good={record} setInventory={setInventory}/>,
         },
         {
+            title: 'Ед',
+            dataIndex: 'good.unit',
+            key: 'good.unit',
+            render: (text, record) => <span>{text}</span>,
+        },
+        /*
+        {
             title: 'Изменено',
             dataIndex: 'change',
             key: 'change',
             render: (text, record) => <span>{text}</span>,
         },
+        */
     ]
 
     return (
