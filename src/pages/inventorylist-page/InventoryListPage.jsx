@@ -1,4 +1,4 @@
-import { Button, Table } from "antd";
+import { Button, Input, Modal, Table } from "antd";
 import { PlusOutlined, FolderOpenOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -69,6 +69,8 @@ export default function InventoryListPage(){
     const shop = useSelector(state=>state.shop.value);
     const navigation = useNavigate();
     const [inventoryList, setInventoryList] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [cashMoney, setCahMoney] = useState("");
 
     const startNewInventory = async () => {
         try{
@@ -91,11 +93,32 @@ export default function InventoryListPage(){
         }
         getInventories();
     },[]);
+    
+    const start = () => {
+        setIsModalOpen(true);
+      };
+    
+      const handleOk = async () => {
+        if(!isNaN(parseFloat(cashMoney)))
+            try{
+                const resp = await $api.post(`/${shop?.id}/inventory`,{cashMoney: parseFloat(cashMoney)});
+                setIsModalOpen(false);
+                navigation(`/documents/inventory/${resp.data.id}`);
+            }
+            catch({response}){
+                if(response?.status === 500 && response.data.type=="ServiceError")
+                    alert(response.data.message);
+            }
+      };
+    
+      const handleCancel = () => {
+        setIsModalOpen(false);
+      };
 
     return(
         <div>
             <div style={{marginBottom: "10px"}}>
-                <Button type="primary" onClick={startNewInventory}>
+                <Button type="primary" onClick={start}>
                     <PlusOutlined />
                     Создать
                 </Button>
@@ -103,6 +126,9 @@ export default function InventoryListPage(){
             <div className={styles.tableDiv}>
                 <Table columns={columns} dataSource={inventoryList} size="small"/>
             </div>
+            <Modal title="Денег в кассе" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <Input value={cashMoney} onChange={e=>setCahMoney(e.target.value)} placeholder="Укажите сумму денег на начало инверторизации"/>
+            </Modal>
         </div>
     )
 }

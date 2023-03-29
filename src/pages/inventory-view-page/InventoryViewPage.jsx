@@ -5,6 +5,9 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import $api from "../../http/api";
 
+let lastInputDate = new Date();
+let lastInputValue = "";
+
 const columns = [
     {
         title: "Товар",
@@ -140,7 +143,7 @@ export default function InventoryViewPage () {
       };
       
     useEffect(()=> { fetchData() }, [JSON.stringify(tableParams)]);
-    const handleChangeSearch = useRef( value=> setTableParams({...tableParams, search: value}));
+    const handleChangeSearch = useRef( value=> setTableParams(prev => ({...prev, search: value})) );
     return (
         <div>
             <h4 style={{textAlign: "center"}}>Инвенторизация № {id} от {inventory.start} - {inventory.stop}</h4>

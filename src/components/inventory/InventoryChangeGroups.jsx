@@ -45,14 +45,6 @@ export default function InventoryChangeGroups ({inventory, setInventory, selectG
     return ( 
         <div className={styles.groupPanel}>
             <ul className={styles.groups}>
-                {inventory?.inventoryGroups.map((gr, i)=> {
-                    if(selectGroup?.id===gr.id)
-                        return <li ref={selectedGroupRef} onClick={()=>setSelectGroup({...gr})} key={gr.id} className={hasSelectedClass(gr)}><h4>{gr.name}</h4></li>;
-                    else
-                        return <li onClick={()=>setSelectGroup({...gr})} key={gr.id} className={hasSelectedClass(gr)}><h4>{gr.name}</h4></li>;
-                })}
-            </ul>
-            <ul className={styles.groups}>
                 {inventory?.inventoryGroups.map((gr, i)=>
                     <InventoryChangeGroup shopId={inventory.shopId} inventoryId={inventory.id} setInventory={setInventory}  group={gr} setSelectGroup={setSelectGroup} key={gr.id} isSelected={(selectGroup?.id==gr.id)} />
                     )}
