@@ -1,18 +1,28 @@
 import { Button, Input, Modal, Table } from "antd";
 import { PlusOutlined, FolderOpenOutlined } from '@ant-design/icons';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, NavLink, useNavigate, useNavigation } from "react-router-dom";
 import styles from './inventoryList.module.scss';
 import $api from "../../http/api";
+import { GetDocumentStatusName, DOCUMENT_STATUS  } from '../../components/infrastructure/document-statuses'
 
 export const InventoryLink = ({record, children}) => {
-    return (
-        record.status === 0 ?
-            <NavLink to={`/documents/inventory/${record.id}`}>{children}</NavLink> :
-            <NavLink to={`/documents/inventory-view/${record.id}`}>{children}</NavLink>
-    )
+    const navigate = useNavigate();
+
+    const setMoney = () => {
+        record.setMoney();
+    }
+
+    switch(record.status){
+        case DOCUMENT_STATUS.New: return <NavLink to={`/documents/inventory/${record.id}`}>{children}</NavLink>; break;
+        case DOCUMENT_STATUS.Complited: return <span onClick={()=>setMoney(record.id)}>{children}</span>; break;
+        case DOCUMENT_STATUS.Successed: return <NavLink to={`/documents/inventory-view/${record.id}`}>{children}</NavLink>; break;
+        default: return <>{children}</>; break;
+    }
 }
+
+
 
 const columns = [
     {
@@ -26,6 +36,12 @@ const columns = [
         dataIndex: 'id',
         key: 'id',
         render: (text, record) => <InventoryLink record={record}>{text}</InventoryLink>,
+    },
+    {
+        title: 'Статус',
+        dataIndex: 'status',
+        key: 'status',
+        render: (status, record) => <InventoryLink record={record}>{GetDocumentStatusName(status)}</InventoryLink>,
     },
     {
         title: 'Создано',
@@ -71,6 +87,7 @@ export default function InventoryListPage(){
     const [inventoryList, setInventoryList] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [cashMoney, setCahMoney] = useState("");
+    const inventorySetMoneySelect = useRef(null);
 
     const startNewInventory = async () => {
         try{
@@ -87,6 +104,10 @@ export default function InventoryListPage(){
         const getInventories = async () =>{
             try{
                 const resp = (await $api.get(`/${shop.id}/inventory`)).data;
+                resp.forEach(i=>i.setMoney = () => {
+                    inventorySetMoneySelect.current = i.id;
+                    setIsModalOpen(true);
+                })
                 setInventoryList(resp);
             }
             catch(e){};
@@ -94,16 +115,24 @@ export default function InventoryListPage(){
         getInventories();
     },[]);
     
-    const start = () => {
-        setIsModalOpen(true);
+    const start = async () => {
+        try{
+            const resp = await $api.post(`/${shop?.id}/inventory`,{cashMoney: null});
+            setIsModalOpen(false);
+            navigation(`/documents/inventory/${resp.data.id}`);
+        }
+        catch({response}){
+            if(response?.status === 500 && response.data.type=="ServiceError")
+                alert(response.data.message);
+        }
       };
     
       const handleOk = async () => {
         if(!isNaN(parseFloat(cashMoney)))
             try{
-                const resp = await $api.post(`/${shop?.id}/inventory`,{cashMoney: parseFloat(cashMoney)});
+                const resp = await $api.post(`/${shop?.id}/inventory/${inventorySetMoneySelect.current}/setmoney`,{cashMoney: parseFloat(cashMoney)});
                 setIsModalOpen(false);
-                navigation(`/documents/inventory/${resp.data.id}`);
+                navigation(`/documents/inventory/${inventorySetMoneySelect.current}`);
             }
             catch({response}){
                 if(response?.status === 500 && response.data.type=="ServiceError")
