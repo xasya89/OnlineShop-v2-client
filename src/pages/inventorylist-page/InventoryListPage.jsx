@@ -132,7 +132,7 @@ export default function InventoryListPage(){
             try{
                 const resp = await $api.post(`/${shop?.id}/inventory/${inventorySetMoneySelect.current}/setmoney`,{cashMoney: parseFloat(cashMoney)});
                 setIsModalOpen(false);
-                navigation(`/documents/inventory/${inventorySetMoneySelect.current}`);
+                navigation(`/documents/inventory-view/${inventorySetMoneySelect.current}`);
             }
             catch({response}){
                 if(response?.status === 500 && response.data.type=="ServiceError")

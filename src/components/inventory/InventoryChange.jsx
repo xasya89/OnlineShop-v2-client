@@ -154,6 +154,9 @@ export default function InventoryChange({inventory, setInventory}){
     }
 
     const cancel = () => navigate("/documents/inventorylist");
+
+    const calcSumAll = inventory?.inventoryGroups?.reduce( (sum, group) =>  sum + group.inventoryGoods?.reduce( (sum, good) => sum + good.price * (good.countFact ?? 0), 0 ), 0);
+    const calcSumGroup = inventory?.inventoryGroups?.filter(gr=>gr.id===selectGroup?.id).reduce( (sum, group) =>  sum + group.inventoryGoods?.reduce( (sum, good) => sum + good.price * (good.countFact ?? 0), 0 ), 0);
     
     return (
         <>
@@ -162,6 +165,11 @@ export default function InventoryChange({inventory, setInventory}){
                 <Button size="default" onClick={cancel}>Закрыть</Button>
                 <Button type="danger" onClick={complite} size="default">Завершить</Button>
             </Space>
+            <div>
+                <Space wrap size="large" style={{marginBottom: "20px", marginLeft: "5px"}}>
+                    <h3>Сумма всего: {calcSumAll} в группе: {calcSumGroup}</h3>
+                </Space>
+            </div>
             <InventoryChangeGroups inventory={inventory} setInventory={setInventory} selectGroup={selectGroup} setSelectGroup={setSelectGroup} />
             <div>
                     
