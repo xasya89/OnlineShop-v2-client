@@ -155,8 +155,8 @@ export default function InventoryChange({inventory, setInventory}){
 
     const cancel = () => navigate("/documents/inventorylist");
 
-    const calcSumAll = inventory?.inventoryGroups?.reduce( (sum, group) =>  sum + group.inventoryGoods?.reduce( (sum, good) => sum + good.price * (good.countFact ?? 0), 0 ), 0);
-    const calcSumGroup = inventory?.inventoryGroups?.filter(gr=>gr.id===selectGroup?.id).reduce( (sum, group) =>  sum + group.inventoryGoods?.reduce( (sum, good) => sum + good.price * (good.countFact ?? 0), 0 ), 0);
+    const calcSumAll = inventory?.inventoryGroups?.reduce( (sum, group) =>  sum + group.inventoryGoods?.reduce( (sum, good) => sum + good.price * (good.countFact ?? 0), 0 ), 0) ?? 0;
+    const calcSumGroup = inventory?.inventoryGroups?.filter(gr=>gr.id===selectGroup?.id).reduce( (sum, group) =>  sum + group.inventoryGoods?.reduce( (sum, good) => sum + good.price * (good.countFact ?? 0), 0 ), 0) ?? 0;
     
     return (
         <>
