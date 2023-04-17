@@ -3,6 +3,7 @@ import { Button, Checkbox, Dropdown, Input, Space, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import GoodGroups from '../../components/GoodGroups/GoodGroups';
 import $api from '../../http/api';
 import styles from './GoodListPage.module.scss';
 
@@ -80,6 +81,7 @@ const GoodListPage = () => {
     const shop = useSelector(state=>state.shop.value);
     const navigate = useNavigate();
     const [goods, setGoods] = useState([]);
+    const [selectGroups, setSelectGroups] = useState([]);
     const [loading, setLoading] = useState(false);
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -90,16 +92,18 @@ const GoodListPage = () => {
     });
     const [search, setSearch] = useState("");
     const [skipDeleted, setSkipDeleted] = useState(true);
-    const [selectedGroupId, setSelectedGroupId] = useState(null);
 
     const fetchData = async (current = 1) => {
         setLoading(true);
             try{
-                const resp = await $api.get(`/${shop?.id}/goods?skipDeleted=${skipDeleted}&find=${search}&page=${current}&count=${tableParams.pagination.pageSize}`);
+                let groups = "";
+                selectGroups.forEach(g=> { groups = groups + `groups=${g.id}&` });
+                const resp = await $api.get(`/${shop?.id}/goods?${groups}skipDeleted=${skipDeleted}&find=${search}&page=${current}&count=${tableParams.pagination.pageSize}`);
                 setGoods(resp.data.goods);
                 setTableParams(prev=>({...prev, pagination: {...prev.pagination, total: resp.data.total} }))
             }
             catch(e){
+                console.error(e);
             }
         setLoading(false);
     }
@@ -108,7 +112,7 @@ const GoodListPage = () => {
     },[])
     useEffect(()=>{
         fetchData();
-    }, [search, skipDeleted, selectedGroupId]);
+    }, [search, skipDeleted, selectGroups]);
 
     const newDocumentHandler = () => {}
 
@@ -123,10 +127,10 @@ const GoodListPage = () => {
           setGoods([]);
         }
       };
-    
+
     return (
         <div className={styles.actionContainer}>
-            <div className={styles.actionPanel} style={{marginBottom: "7px"}}>
+            <div className={styles.actionPanel} style={{marginBottom: "7px", width: "100%", display: "flex", justifyContent: "space-between"}}>
                 <Space>
                     <Button type="primary" onClick={newDocumentHandler}>
                         <PlusOutlined />
@@ -136,7 +140,11 @@ const GoodListPage = () => {
                         <Button>Печать</Button>
                     </Dropdown>
                 </Space>
-                <Space direction='horizontal' style={{float: "right"}}>
+                <Space direction='horizontal'>
+                    <GoodGroups shopId={shop.id} setSelectGroups={setSelectGroups} />
+                </Space>
+                <Space direction='horizontal' >
+                    
                     <Checkbox onChange={_=>setSkipDeleted(!skipDeleted)}>Отображать удаленные</Checkbox>
                     <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Поиск" maxLength={25}/>
                 </Space>
