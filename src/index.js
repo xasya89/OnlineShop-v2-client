@@ -16,6 +16,7 @@ import InventoryListPage from './pages/inventorylist-page/InventoryListPage';
 import InventoryPage from './pages/inventory-page/inventoryPage';
 import InventoryViewPage from './pages/inventory-view-page/InventoryViewPage';
 import GoodListPage from './pages/GoodListPage/GoodListPage';
+import GoodEditPage from './pages/GoodEditPage/GoodEditPage';
 
 document.title = "Online shop v2";
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -35,6 +36,14 @@ const router = createBrowserRouter([
       {
         path:"goods",
         element:<Auth><GoodListPage /></Auth>
+      },
+      {
+        path:"goodedit/:id",
+        element: <Auth><GoodEditPage /></Auth>
+      },
+      {
+        path: "goodedit",
+        element: <Auth><GoodEditPage /></Auth>
       },
       {
         path:"documents/inventorylist",

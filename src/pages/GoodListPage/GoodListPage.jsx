@@ -22,43 +22,43 @@ const columns = [
         title: 'Товар',
         dataIndex: 'name',
         key: 'name',
-        render: (text, record) => <Link to={"/goods/"+record.id}>{record.name}</Link>,
+        render: (text, record) => <Link to={"/goodedit/"+record.id}>{record.name}</Link>,
     },
     {
         title: 'Группа',
         dataIndex: 'goodGroup.name',
         key: 'goodGroup.name',
-        render: (text, record) => <Link to={"/goods/"+record.id}>{record.goodGroup.name}</Link>,
+        render: (text, record) => <Link to={"/goodedit/"+record.id}>{record.goodGroup.name}</Link>,
     },
     {
         title: 'Поставщик',
         dataIndex: 'supplier.name',
         key: 'suppliername',
-        render: (text, record) => <Link to={"/goods/"+record.id}>{record.supplier?.name}</Link>,
+        render: (text, record) => <Link to={"/goodedit/"+record.id}>{record.supplier?.name}</Link>,
     },
     {
         title: 'Ед',
         dataIndex: 'unit',
         key: 'unit',
-        render: (text, record) => <Link to={"/goods/"+record.id}>{unitToStr(record.unit)}</Link>,
+        render: (text, record) => <Link to={"/goodedit/"+record.id}>{unitToStr(record.unit)}</Link>,
     },
     {
         title: 'Цена',
         dataIndex: 'price',
         key: 'price',
-        render: (text, record) => <Link to={"/goods/"+record.id}>{record.price}</Link>,
+        render: (text, record) => <Link to={"/goodedit/"+record.id}>{record.price}</Link>,
     },
     {
         title: 'Спец тип',
         dataIndex: 'specialType',
         key: 'specialType',
-        render: (text, record) => <Link to={"/goods/"+record.id}>{specialTypeToStr(record.specialType)}</Link>,
+        render: (text, record) => <Link to={"/goodedit/"+record.id}>{specialTypeToStr(record.specialType)}</Link>,
     },
     {
         title: '',
         dataIndex: 'isDeleted',
         key: 'isDeleted',
-        render: (text, record) => <Link to={"/goods/"+record.id}>{record.isDeleted && <DeleteOutlined />}</Link>,
+        render: (text, record) => <Link to={"/goodedit/"+record.id}>{record.isDeleted && <DeleteOutlined />}</Link>,
     },
 ]
 
@@ -114,7 +114,7 @@ const GoodListPage = () => {
         fetchData();
     }, [search, skipDeleted, selectGroups]);
 
-    const newDocumentHandler = () => {}
+    const handleNewGood = () => navigate("/goodedit");
 
     const handleTableChange = (pagination, filters, sorter) => {
         fetchData(pagination.current);
@@ -132,7 +132,7 @@ const GoodListPage = () => {
         <div className={styles.actionContainer}>
             <div className={styles.actionPanel} style={{marginBottom: "7px", width: "100%", display: "flex", justifyContent: "space-between"}}>
                 <Space>
-                    <Button type="primary" onClick={newDocumentHandler}>
+                    <Button type="primary" onClick={handleNewGood}>
                         <PlusOutlined />
                         Создать
                     </Button>
