@@ -3,6 +3,7 @@ import { Button, Checkbox, Input, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate, useNavigation, useParams } from 'react-router-dom';
+import { GenerateUuuid4 } from '../../features/generateUuid';
 import $api from '../../http/api';
 import styles from './GoodEditPage.module.scss';
 
@@ -17,30 +18,8 @@ const initState = {
     "specialType": 0,
     "vPackage": null,
     "isDeleted": false,
-    "goodPrices": [
-      {
-        "id": 2944,
-        "shopId": 1,
-        "price": 111
-      },
-      
-      {
-        "id": 2944,
-        "shopId": 2,
-        "price": 111
-      },
-      {
-        "id": 2944,
-        "shopId": 3,
-        "price": 111
-      }
-    ],
-    "barcodes": [
-      {
-        "id": 2934,
-        "code": "144824"
-      }
-    ]
+    "goodPrices": [],
+    "barcodes": []
   }
 
 const units = [{label: "шт", value: 796}, {label: "л", value: 112}, {label: "кг", value:166}];
@@ -57,12 +36,35 @@ const handleEditBarcode = (setGood, barcode, value) => setGood(prev => ({...prev
     return x;
 })}))
 
-const handleRemoveBarcode = (setGood, barcode) => setGood(prev => ({...prev, barcodes: prev.barcodes.filter(b=>b.id===0 & b.isDeleted).map(x => {
+const handleRemoveBarcode = (setGood, barcode) => setGood(prev => ({...prev, barcodes: prev.barcodes.filter(b=>(b.id!==0 & b.isDeleted) || !b.isDeleted).map(x => {
     if(barcode===x) x.isDeleted=!x.isDeleted;
     return x;
 })}))
 
 const handleChangePriceMain = (setGood, value) => setGood(prev => ({...prev, price: value, goodPrices: prev.goodPrices.map(p => ({...p, price: value}) )}));
+
+const save = async (good, shopId, setGood) => {
+    try{
+        good.price = parseFloat(good.price);
+        good.goodPrices.forEach(p=>p.price=parseFloat(p.price));
+        if(good.id===0){
+            const resp = await $api.post(`/${shopId}/goods`, good);
+            setGood(resp.data);
+        }
+        if(good.id!==0){
+            const resp = await $api.put(`/${shopId}/goods`, good);
+            setGood(resp.data);
+        }
+    }
+    catch(e){
+        const {code, data} = e.response;
+        if(code === 500)
+            alert("Ошибка сохранения! " + data.message);
+        else
+            alert("Ошибка сохранения");
+        console.error(e);
+    }
+}
 
 const GoodEditPage = () => {
     const shop = useSelector(state=>state.shop.value);
@@ -84,25 +86,25 @@ const GoodEditPage = () => {
             setShops(resp.data);
             if(id) {
                 resp = await $api.get(`/${shop.id}/goods/${id}`);
-                resp.data.barcodes.forEach(b=>b.isDeleted = false);
+                resp.data.barcodes.forEach(b=> { b.isDeleted = false; b.uuid = GenerateUuuid4(); });
+                resp.data.goodPrices.forEach(p => p.uuid = GenerateUuuid4() );
                 setGood(resp.data);
             }
             else {
                 resp = await $api.get("/SystemConfiguration");
                 if(resp.data.ownerGoodForShops)
-                    setGood(prev => ( {...prev, goodPrices:  [{id:0, shopId: shop.id, price: null}] } ))
+                    setGood(prev => ( {...prev, goodPrices:  [{id:0, shopId: shop.id, price: null, uuid: GenerateUuuid4() }] } ))
                 else
-                    setGood(prev => ({...prev, goodPrices: shops.map(s=> ({id: 0, shopId: s.id, price: null }))}));
+                    setGood(prev => ({...prev, goodPrices: shops.map(s=> ({id: 0, shopId: s.id, price: null, uuid: GenerateUuuid4() }))}));
             }
         }
         getGroups();
     }, []);
 
     const handleAddBarcode = () => {
-        setGood(prev=> ({ ...prev, barcodes: [...prev.barcodes, {id: 0, code: "" }] }));
+        setGood(prev=> ({ ...prev, barcodes: [...prev.barcodes, {id: 0, code: "", isDeleted: false, uuid: GenerateUuuid4() }] }));
     }
 
-    const handlerSave = () => {}
     const selectedGroup = groups?.find(g=>g.id===good.goodGroupId);
     const selectedSupplier = suppliers?.find(s=>s.id===good.supplierId);
     const selectedUnit = units?.find(s=>s.value===good.unit);
@@ -111,7 +113,7 @@ const GoodEditPage = () => {
     return (
         <div className={styles.actionContainer}>
             <div className={styles.actionPanel}>
-                <Button type="primary" onClick={handlerSave}>
+                <Button type="primary" onClick={_ => save(good, shop.id, setGood)}>
                     <SaveOutlined />
                     Сохранить
                 </Button>
@@ -138,7 +140,7 @@ const GoodEditPage = () => {
                 </div>
                 <div>
                     <label>Поставщик</label>
-                    {selectedSupplier!==undefined && 
+                    {selectedSupplier!==undefined && selectedSupplier.id!==null && 
                         <Select labelInValue 
                         onChange={({value}) => setGood(prev=>({...prev, supplierId: value}))} 
                         defaultValue={{label: selectedSupplier.name, value: selectedSupplier.id}} 
@@ -153,7 +155,7 @@ const GoodEditPage = () => {
                 </div>
                 <div>
                     <label>Артикул</label>
-                    <Input value={good.article} onChange={e=>setGood(prev => ({...prev, article:e.target.value}))} />
+                    <Input value={good.article ?? ""} onChange={e=>setGood(prev => ({...prev, article:e.target.value}))} />
                 </div>
                 <div>
                     <label>Ед измер.</label>
@@ -181,7 +183,7 @@ const GoodEditPage = () => {
                 </div>
                 <div>
                     <label>Обхем тары</label>
-                    <Input value={good.vPackage} onChange={e=>setGood(prev=>({...prev, vPackage: e.target.value.replace(",", ".") }))} />
+                    <Input value={good.vPackage ?? ""} onChange={e=>setGood(prev=>({...prev, vPackage: e.target.value.replace(",", ".") }))} />
                 </div>
                 <div>
                     <Checkbox checked={good.isDeleted} onChange={_=>setGood(prev => ({...prev, isDeleted: !prev.isDeleted }) )}>Удален</Checkbox>
@@ -189,11 +191,11 @@ const GoodEditPage = () => {
                 <div style={{border: "solid 1px lightgray", padding: "5px", marginTop: "10px"}}>
                     <div>
                         <label>Цена</label>
-                        <Input value={good.price} onChange={e => handleChangePriceMain(setGood, e.target.value) } />
+                        <Input value={good.price ?? ""} onChange={e => handleChangePriceMain(setGood, e.target.value) } />
                     </div>
-                    {good.goodPrices.map(g=> <div style={{display: "flex", alignItems: "center", gap: "5px"}}>
+                    {good.goodPrices.map(g=> <div key={g.uuid} style={{display: "flex", alignItems: "center", gap: "5px"}}>
                         <label>{shops.find(s=>s.id===g.shopId)?.alias}</label>
-                        <Input value={g.price} 
+                        <Input value={g.price ?? ""} 
                             onChange={e => handleEditPrice(setGood, g, e.target.value)} />
                     </div>)}
                 </div>
@@ -202,7 +204,7 @@ const GoodEditPage = () => {
                         <label style={{marginRight: "10px"}}>Штрихкоды</label>
                         <Button onClick={handleAddBarcode}><PlusOutlined /> штрих код</Button>
                     </div>
-                    {good.barcodes.filter(b=>!b.isDeleted).map(b=> <div style={{display: "flex", alignItems: "center", gap: "5px"}}>
+                    {good.barcodes.filter(b=>!b.isDeleted).map(b=> <div key={b.uuid} style={{display: "flex", alignItems: "center", gap: "5px"}}>
                         <Input value={b.code} 
                         onChange={e => handleEditBarcode(setGood, b, e.target.value)} />
                         <Button onClick={_ => handleRemoveBarcode(setGood, b)}><DeleteFilled /></Button>
