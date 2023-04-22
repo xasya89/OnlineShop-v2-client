@@ -72,7 +72,7 @@ const items = [
     {
       key: '2',
       label: (
-        <Link to="/">Остатки</Link>
+        <Link to="/goodsPrintBalance">Остатки</Link>
       ),
     },
   ];

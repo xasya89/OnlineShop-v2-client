@@ -1,0 +1,12 @@
+@import '../../components/normalize';
+@import '../../components/variables';
+
+.actionContainer{
+    padding: 5px;
+}
+
+.actionPanel{
+    display: flex;
+    flex-direction: row;
+    gap: 10px
+}
