@@ -50,6 +50,7 @@ const GoodsPrintBalancePage = () => {
     const [groups, setGroups] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
     const [viewRemoved, setViewRemoved] = useState(false);
+    const [viewNegativeBalance, setViewNegativeBalance] = useState(false);
 
     const handleOnChangeGroups = (value) => setSelectedGroups( groups.filter(g=>value.includes(g.id)) );
     const handleOnChangeSupplier = (value) => setSelectedGroups( suppliers.filter(g=>value === g.id) );
@@ -132,11 +133,11 @@ const GoodsPrintBalancePage = () => {
             selectedGroups.forEach(g=> { groups = groups + `groups=${g.id}&` });
             let suppliers = "";
             selectedSuppliers.forEach(s=> { suppliers = suppliers + `suppliers=${s.id}&` });
-            let resp = await $api.get(`/${shop?.id}/currentbalance?${groups}${suppliers}skipDeleted=${!viewRemoved}`);
+            let resp = await $api.get(`/${shop?.id}/currentbalance?${groups}${suppliers}skipDeleted=${!viewRemoved}&viewNegativeBalance=${viewNegativeBalance}`);
             setGoods(resp.data);
         };
         getGoods();
-    }, [selectedGroups, selectedSuppliers, viewRemoved]);
+    }, [selectedGroups, selectedSuppliers, viewRemoved, viewNegativeBalance]);
 
     return (
         <div className={styles.actionContainer}>
@@ -148,6 +149,7 @@ const GoodsPrintBalancePage = () => {
                 <Select onChange={handleOnChangeGroups} mode="multiple" placeholder="Фильтр по группам" style={{width: "200px"}} options={groups.map(g=>({value: g.id, label: g.name}))}/>
                 <Select onChange={handleOnChangeSupplier} placeholder="Фильтр по поставщикам" style={{width: "200px"}} options={suppliers.map(g=>({value: g.id, label: g.name}))}/>
                 <Checkbox onChange={_ => setViewRemoved(prev=>!prev)}>Отображать удаленные</Checkbox>
+                <Checkbox onChange={_ => setViewNegativeBalance(prev=>!prev)}>Отобразить отрицательный баланс</Checkbox>
             </div>
             <div>
                 <Table columns={columns} rowKey={x=>x.id} dataSource={goods} size="small" pagination={false}/>
