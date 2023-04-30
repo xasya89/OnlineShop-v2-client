@@ -41,6 +41,7 @@ const columns = [
     },
 ]
 
+
 const GoodsPrintBalancePage = () => {
     const shop = useSelector(state=>state.shop.value);
     const navigate = useNavigate();
@@ -157,5 +158,6 @@ const GoodsPrintBalancePage = () => {
         </div>
     )
 }
+
 
 export default GoodsPrintBalancePage;

@@ -1,0 +1,15 @@
+@import '../../../components/normalize';
+@import '../../../components/variables';
+
+.actionContainer{
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.actionPanel{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}

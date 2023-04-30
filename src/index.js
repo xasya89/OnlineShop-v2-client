@@ -19,6 +19,8 @@ import GoodListPage from './pages/GoodListPage/GoodListPage';
 import GoodEditPage from './pages/GoodEditPage/GoodEditPage';
 import MainPage from './pages/MainPage/MainPage';
 import GoodsPrintBalancePage from './pages/GoodsPrintBalancePage/GoodsPrintBalancePage';
+import PrintPriceTagsPage from './pages/goods/PrintPriceTagsPage/PrintPriceTagsPage';
+import PrintPriceTagsPageAction from './pages/goods/PrintPriceTagsPage/PrintPriceTagsPageAction';
 
 document.title = "Online shop v2";
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -50,6 +52,10 @@ const router = createBrowserRouter([
       {
         path: "goodsPrintBalance",
         element: <Auth><GoodsPrintBalancePage /></Auth>
+      },
+      {
+        path: "goodsPrintPriceTags",
+        element: <Auth><PrintPriceTagsPage /></Auth>
       },
       {
         path:"documents/inventorylist",

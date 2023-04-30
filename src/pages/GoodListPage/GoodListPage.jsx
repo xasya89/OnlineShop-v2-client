@@ -66,7 +66,7 @@ const items = [
     {
       key: '1',
       label: (
-        <Link to="/">Ценники</Link>
+        <Link to="/goodsPrintPriceTags">Ценники</Link>
       ),
     },
     {
