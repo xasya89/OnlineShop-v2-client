@@ -36,10 +36,10 @@ const handleEditBarcode = (setGood, barcode, value) => setGood(prev => ({...prev
     return x;
 })}))
 
-const handleRemoveBarcode = (setGood, barcode) => setGood(prev => ({...prev, barcodes: prev.barcodes.filter(b=>(b.id!==0 & b.isDeleted) || !b.isDeleted).map(x => {
+const handleRemoveBarcode = (setGood, barcode) => setGood(prev => ({...prev, barcodes: prev.barcodes.map(x => {
     if(barcode===x) x.isDeleted=!x.isDeleted;
     return x;
-})}))
+}).filter(b=>(b.id!==0 & b.isDeleted) || !b.isDeleted)}))
 
 const handleChangePriceMain = (setGood, value) => setGood(prev => ({...prev, price: value, goodPrices: prev.goodPrices.map(p => ({...p, price: value}) )}));
 
