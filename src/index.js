@@ -21,6 +21,7 @@ import MainPage from './pages/MainPage/MainPage';
 import GoodsPrintBalancePage from './pages/GoodsPrintBalancePage/GoodsPrintBalancePage';
 import PrintPriceTagsPage from './pages/goods/PrintPriceTagsPage/PrintPriceTagsPage';
 import PrintPriceTagsPageAction from './pages/goods/PrintPriceTagsPage/PrintPriceTagsPageAction';
+import SuppliersPage from './pages/SuppliersPage/SuppliersPage';
 
 document.title = "Online shop v2";
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
         element: <Auth><InventoryPage /></Auth>
       },
       */
+      {
+        path:"suppliers",
+        element: <Auth><SuppliersPage /></Auth>
+      },
       {
         path:"documents/inventory-view/:id?",
         element: <Auth><InventoryViewPage /></Auth>

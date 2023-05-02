@@ -19,7 +19,11 @@ export default function Header({isVisible}){
                 </div>
                 <ul className={styles.menuItems}>
                     <li>
-                        <NavLink to="/goods" className={handleHoverLink}>Товары</NavLink>
+                        Справочники
+                        <ul>
+                            <li><NavLink to="/goods" className={handleHoverLink}>Товары</NavLink></li>
+                            <li><NavLink to="/suppliers" className={handleHoverLink}>Поставщики</NavLink></li>
+                        </ul>
                     </li>
                     <li>
                         Документы
