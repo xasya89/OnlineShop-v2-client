@@ -2,6 +2,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import $api from '../../http/api';
 import styles from './TemplateName.module.scss';
 
 const TemplateName = () => {

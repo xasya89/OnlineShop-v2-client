@@ -23,6 +23,7 @@ export default function Header({isVisible}){
                         <ul>
                             <li><NavLink to="/goods" className={handleHoverLink}>Товары</NavLink></li>
                             <li><NavLink to="/suppliers" className={handleHoverLink}>Поставщики</NavLink></li>
+                            <li><NavLink to="/goodgroups" className={handleHoverLink}>Группы</NavLink></li>
                         </ul>
                     </li>
                     <li>

@@ -17,6 +17,7 @@ import InventoryPage from './pages/inventory-page/inventoryPage';
 import InventoryViewPage from './pages/inventory-view-page/InventoryViewPage';
 import GoodListPage from './pages/GoodListPage/GoodListPage';
 import GoodEditPage from './pages/GoodEditPage/GoodEditPage';
+import GroupsPage from './pages/GroupsPage/GroupsPage';
 import MainPage from './pages/MainPage/MainPage';
 import GoodsPrintBalancePage from './pages/GoodsPrintBalancePage/GoodsPrintBalancePage';
 import PrintPriceTagsPage from './pages/goods/PrintPriceTagsPage/PrintPriceTagsPage';
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
       {
         path: "goodsPrintBalance",
         element: <Auth><GoodsPrintBalancePage /></Auth>
+      },
+      {
+        path: `goodgroups`,
+        element: <Auth><GroupsPage /></Auth>
       },
       {
         path: "goodsPrintPriceTags",
