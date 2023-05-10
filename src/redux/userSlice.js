@@ -44,7 +44,6 @@ const userSlice = createSlice({
         },
         [fetchUser.rejected]: (state, action) => {
             state.status = "error";
-            console.log("error");
         },
         [fetchUserByRefresh.fulfilled]: (state, action) => {
             state.value = action.payload;
