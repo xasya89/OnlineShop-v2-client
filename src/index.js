@@ -23,6 +23,8 @@ import GoodsPrintBalancePage from './pages/GoodsPrintBalancePage/GoodsPrintBalan
 import PrintPriceTagsPage from './pages/goods/PrintPriceTagsPage/PrintPriceTagsPage';
 import PrintPriceTagsPageAction from './pages/goods/PrintPriceTagsPage/PrintPriceTagsPageAction';
 import SuppliersPage from './pages/SuppliersPage/SuppliersPage';
+import ArrivalEditPage from './pages/ArrivalEditPage/ArrivalEditPage';
+import ArrivalListPage from './pages/ArrivalListPage/ArrivalListPage';
 
 document.title = "Online shop v2";
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -84,7 +86,15 @@ const router = createBrowserRouter([
       {
         path:"documents/inventory/:id?",
         element: <Auth><InventoryPage /></Auth>
-      }
+      },
+      {
+        path:"documents/arrivals/:id",
+        element: <Auth><ArrivalEditPage /></Auth>
+      },
+      {
+        path:"documents/arrivals",
+        element: <Auth><ArrivalListPage /></Auth>
+      },
     ],
     errorElement: <NotFoundPage />
   }
