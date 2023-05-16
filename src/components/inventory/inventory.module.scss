@@ -1,6 +1,7 @@
 @import '../variables';
 
 
+
 @mixin scrollbars($size, $foreground-color, $background-color: mix($foreground-color, white, 50%)) {
     ::-webkit-scrollbar {
         width:  $size;
