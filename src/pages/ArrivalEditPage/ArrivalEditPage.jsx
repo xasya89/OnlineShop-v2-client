@@ -235,14 +235,17 @@ const ArrivalEditPage = () => {
         })).flat();
         setPositions(prev => prev.concat(newPositions));
     }
-
+    
     return (
         <div className={styles.actionContainer}>
             <div className={styles.actionPanel}>
-                <Button type="primary" onClick={save}>
-                    <PlusOutlined />
-                    Сохранить
-                </Button>
+                {
+                    id == 0 &&
+                    <Button type="primary" onClick={save}>
+                        <PlusOutlined />
+                        Сохранить
+                    </Button>
+                }
             </div>
             <div>
                 <label>№</label>
