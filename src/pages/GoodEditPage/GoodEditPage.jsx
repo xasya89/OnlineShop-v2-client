@@ -2,7 +2,7 @@ import { DeleteFilled, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Input, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useLocation, useNavigate, useNavigation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useNavigation, useParams } from 'react-router-dom';
 import { GenerateUuuid4 } from '../../features/generateUuid';
 import $api from '../../http/api';
 import styles from './GoodEditPage.module.scss';
@@ -30,12 +30,12 @@ const handleEditPrice = (setGood, goodPrice, value) => setGood(prev => ({...prev
     return p;
 }) })
 )
-
+/*
 const handleEditBarcode = (setGood, barcode, value) => setGood(prev => ({...prev, barcodes: prev.barcodes.map(x => {
     if(barcode===x) x.code=value;
     return x;
 })}))
-
+*/
 const handleRemoveBarcode = (setGood, barcode) => setGood(prev => ({...prev, barcodes: prev.barcodes.map(x => {
     if(barcode===x) x.isDeleted=!x.isDeleted;
     return x;
@@ -103,6 +103,20 @@ const GoodEditPage = () => {
 
     const handleAddBarcode = () => {
         setGood(prev=> ({ ...prev, barcodes: [...prev.barcodes, {id: 0, code: "", isDeleted: false, uuid: GenerateUuuid4() }] }));
+    }
+
+    const handleEditBarcode = async (barcode, value) => {
+        const resp = await $api.get(`/${shop?.id}/goods/barcodeexists/${value}`);
+        let idExists = !isNaN(parseInt(resp.data)) ? parseInt(resp.data) : null;
+        idExists = idExists !== id ? idExists : null;
+        setGood(prev => ({...prev, barcodes: prev.barcodes.map(x => {
+            x.existsGoodId = null;
+            if(barcode===x) { 
+                x.code=value;
+                x.existsGoodId = idExists
+            }
+            return x;
+        })}))
     }
 
     const selectedGroup = groups?.find(g=>g.id===good.goodGroupId);
@@ -204,11 +218,15 @@ const GoodEditPage = () => {
                         <label style={{marginRight: "10px"}}>Штрихкоды</label>
                         <Button onClick={handleAddBarcode}><PlusOutlined /> штрих код</Button>
                     </div>
-                    {good.barcodes.filter(b=>!b.isDeleted).map(b=> <div key={b.uuid} style={{display: "flex", alignItems: "center", gap: "5px"}}>
-                        <Input value={b.code} 
-                        onChange={e => handleEditBarcode(setGood, b, e.target.value)} />
-                        <Button onClick={_ => handleRemoveBarcode(setGood, b)}><DeleteFilled /></Button>
-                    </div>)}
+                    {good.barcodes.filter(b=>!b.isDeleted).map(b=> <div key={b.uuid}>
+                        <div style={{display: "flex", alignItems: "center", gap: "5px"}}>
+                            <Input value={b.code} 
+                            onChange={e => handleEditBarcode(b, e.target.value)} />
+                            <Button onClick={_ => handleRemoveBarcode(setGood, b)}><DeleteFilled /></Button>
+                        </div>
+                        {b.existsGoodId && <Link reloadDocument={true} to={`/goodedit/${b.existsGoodId}`} style={{color: "red"}}>Штрих код существует, перейти к редактированию</Link>}
+                    </div>
+                    )}
                 </div>
                 
             </div>
