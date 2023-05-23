@@ -9,6 +9,7 @@ import InventoryChangeGroups from "./InventoryChangeGroups";
 import { STATUS_ADD, STATUS_DELETE, STATUS_EDIT, STATUS_LOAD } from "./InventoryChangeGoodStatus";
 import { useNavigate } from "react-router-dom";
 import InventoryChangeGoods from "./InventoryChangeGoods";
+import GoodChoose from '../GoodChooseComponent/GoodChooseComponent';
 
 let barcode = "";
 let prevKeyDown = undefined;
@@ -57,47 +58,30 @@ export default function InventoryChange({inventory, setInventory}){
         return group?.inventoryGoods ?? [];
     }
 
-    const addGood = async good => {
+    const addGood = async goods => {
         if(!selectGroup)
             return;
         //Проверим не сущесвует в выбранной группе
-        let group = inventory.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0];
-        let goodAppended = group.inventoryGoods.filter(g=>g.id==good.id);
-        if(goodAppended.length!==0)
-            return;
+        let appendedGoods = inventory.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0].inventoryGoods;
+        const appendGoods = goods.filter(g=>appendedGoods.find(a=>a.goodId===g.id)===undefined);
+        if(appendGoods.length===0) return;
         try{
-            const resp = (await $api.post(`/${shopId}/inventory/${inventory.id}/goods`, 
-                [{id: 0, groupId: group.id, goodId: good.id, countFact: 0, state: STATUS_ADD}]
-            )).data;
+            const resp = await $api.post(`/${shopId}/inventory/${inventory.id}/goods`, 
+                appendGoods.map(g=>({id: 0, inventoryGroupId: selectGroup.id, goodId: g.id, countFact: 0, state: STATUS_ADD}))
+            );
         
             setInventory(prev => {
                 let group = prev.inventoryGroups.filter(gr => gr.id === selectGroup.id)[0];
-                let goods = group.inventoryGoods;
-                if(goods.filter(g=>g.goodId === good.id).length===0)
-                    group.inventoryGoods = [...goods, {
-                        id:resp[0].id, 
-                        goodId: good.id, 
-                        goodName: good.name, 
-                        price: good.price, 
-                        countFact: null, 
-                        countAppend: null, 
-                        uuid: getRandomInt(0, 10000),
-                        state: STATUS_EDIT
-                    }];
-                else
-                    group.inventoryGoods = [...goods];
-                /*
-                else
-                    group.inventoryGoods = goods.map(g=>{
-                        if(g.goodId===goodScan.goodId){
-                            if(goodScan.countFact){
-                                if(!isNaN(parseFloat(goodScan.countFact))) // Добавить проыерку, что это штучный товар
-                                    goodScan.countFact=parseFloat(goodScan.countFact) + 1;
-                            }
-                        }
-                        return {...g};
-                    });
-                */
+                group.inventoryGoods = group.inventoryGoods.concat(resp.data.map(r=>({
+                    id: r.id,
+                    goodId: r.goodId,
+                    goodName: r.goodName,
+                    price: r.price,
+                    countFact: null,
+                    countAppend: null,
+                    uuid: getRandomInt(0, 10000),
+                    state: STATUS_EDIT
+                })));
                 return {...prev};
             })
         }
@@ -111,7 +95,7 @@ export default function InventoryChange({inventory, setInventory}){
         inventory.inventoryGroups.forEach(group => {
             chandgeArr = chandgeArr.concat(group.inventoryGoods
                 .filter(g=>g.state!==STATUS_LOAD)
-                .map(g=>{ return {id: g.id, groupId: group.id, goodId: g.goodId, countFact: g.countFact, state: g.state} }));
+                .map(g=>{ return {id: g.id, inventoryGroupId: group.id, goodId: g.goodId, countFact: g.countFact, state: g.state} }));
         });
         try{
             const resp = (await $api.post(`/${shopId}/inventory/${inventory.id}/goods`, chandgeArr)).data;
@@ -141,7 +125,7 @@ export default function InventoryChange({inventory, setInventory}){
         inventory.inventoryGroups.forEach(group => {
             chandgeArr = chandgeArr.concat(group.inventoryGoods
                 .filter(g=>g.state!==STATUS_LOAD)
-                .map(g=>{ return {id: g.id, groupId: group.id, goodId: g.goodId, countFact: g.countFact, state: g.state} }));
+                .map(g=>{ return {id: g.id, inventoryGroupId: group.id, goodId: g.goodId, countFact: g.countFact, state: g.state} }));
         });
         try{
             const resp = await $api.post(`/${shopId}/inventory/${inventory.id}/complite`, chandgeArr);
@@ -159,25 +143,27 @@ export default function InventoryChange({inventory, setInventory}){
     const calcSumGroup = inventory?.inventoryGroups?.filter(gr=>gr.id===selectGroup?.id).reduce( (sum, group) =>  sum + group.inventoryGoods?.reduce( (sum, good) => sum + good.price * (good.countFact ?? 0), 0 ), 0) ?? 0;
     
     return (
-        <>
-            <Space wrap size="large" style={{marginBottom: "20px"}}>
-                <Button type="primary" size="default" onClick={saveGoods}>Созранить</Button>
-                <Button size="default" onClick={cancel}>Закрыть</Button>
-                <Button type="danger" onClick={complite} size="default">Завершить</Button>
-            </Space>
-            <div>
-                <Space wrap size="large" style={{marginBottom: "20px", marginLeft: "5px"}}>
-                    <h3>Сумма всего: {calcSumAll} в группе: {calcSumGroup}</h3>
+        <div style={{display: "grid", gridTemplateRows: "auto 1fr", height:"calc(100vh - 40px)"}}>
+            <div>    
+                <Space wrap size="large" style={{marginBottom: "20px"}}>
+                    <Button type="primary" size="default" onClick={saveGoods}>Созранить</Button>
+                    <Button size="default" onClick={cancel}>Закрыть</Button>
+                    <Button type="danger" onClick={complite} size="default">Завершить</Button>
                 </Space>
-            </div>
-            <InventoryChangeGroups inventory={inventory} setInventory={setInventory} selectGroup={selectGroup} setSelectGroup={setSelectGroup} />
-            <div>
-                    
-                <div style={{margin: "5px"}}>
-                    <InventoryChangeGoodSelector onChange={addGood}/>
+                <div>
+                    <Space wrap size="large" style={{marginBottom: "20px", marginLeft: "5px"}}>
+                        <h3>Сумма всего: {calcSumAll} в группе: {calcSumGroup}</h3>
+                    </Space>
                 </div>
-                <InventoryChangeGoods groupId={selectGroup?.id} goods={getGoods()} setInventory={setInventory} />
+                <InventoryChangeGroups inventory={inventory} setInventory={setInventory} selectGroup={selectGroup} setSelectGroup={setSelectGroup} />
+                
+                <div style={{margin: "5px"}}>
+                    <GoodChoose onChoosed={e=>addGood(e)} />
+                </div>
             </div>
-        </>
+            <div style={{overflow: "scroll"}}>
+                    <InventoryChangeGoods groupId={selectGroup?.id} goods={getGoods()} setInventory={setInventory} />
+            </div>
+        </div>
     )
 }

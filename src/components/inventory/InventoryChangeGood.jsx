@@ -9,6 +9,7 @@ export default function InventoryChangeGood({groupId, good, setInventory}) {
     const [value, setValue] = useState(good.countFact ?? "");
     const [initState, setInitState] = useState(false);
     const valueRef = useRef(good.countFact);
+    const inputRef = useRef(null);
 
     const setDebounceValue = useCallback(
         debounce(()=>{ 
@@ -32,7 +33,11 @@ export default function InventoryChangeGood({groupId, good, setInventory}) {
             setInitState(true);
     }, [value]);
 
-    return <Input type="n" value={value} onChange={e=>setValue(e.target.value.replace(",","."))} />
+    useEffect(()=>{
+        setTimeout(()=>inputRef.current?.focus(), 1000);
+    },[])
+
+    return <Input type="n" value={value} onChange={e=>setValue(e.target.value.replace(",","."))} ref={inputRef}/>
 
     return (
         <tr>
