@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Table } from 'antd';
+import { Button, Select, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,6 +12,8 @@ const ArrivalListPage = () => {
     const shop = useSelector(state=>state.shop.value);
     const navigate = useNavigate();
     const [arrivals, setArrivals] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
+    const [selectSupplier, setSelectSupplier] = useState(null);
     const [loading, setLoading] = useState(false);
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -26,7 +28,8 @@ const ArrivalListPage = () => {
     const fetchData = async (current = 1) => {
         setLoading(true);
             try{
-                const resp = await $api.get(`/${shop?.id}/arrivals?page=${current}&count=${tableParams.pagination.pageSize}`);
+                const supplierParam = selectSupplier!=null ?"&supplierId=" + selectSupplier : "";
+                const resp = await $api.get(`/${shop?.id}/arrivals?page=${current}&count=${tableParams.pagination.pageSize}${supplierParam}`);
                 setArrivals(resp.data.arrivals);
                 setTableParams(prev=>({...prev, pagination: {...prev.pagination, total: resp.data.total} }))
             }
@@ -36,7 +39,18 @@ const ArrivalListPage = () => {
         setLoading(false);
     }
 
-    useEffect(()=> { fetchData() }, [])
+    useEffect(()=>{
+        const getSuppliers = async () => {
+            const resp = await $api.get(`/${shop?.id}/suppliers`);
+            const values = [{value: null, label: ""}].concat(resp.data.map(s=>({value: s.id, label: s.name})))
+            setSuppliers(values);
+        } 
+        getSuppliers();
+    }, []);
+
+    useEffect(()=> {
+        fetchData() 
+    }, [selectSupplier])
 
     const handleTableChange = (pagination, filters, sorter) => {
         fetchData(pagination.current);
@@ -90,6 +104,8 @@ const ArrivalListPage = () => {
                     <PlusOutlined />
                     Создать
                 </Button>
+
+                <Select onChange={val=>setSelectSupplier(val)} options={suppliers} defaultValue={null} style={{minWidth: "150px"}} placeholder=""/>
             </div>
             <Table rowKey={r=>r.id} columns={columns} dataSource={arrivals} pagination={tableParams.pagination} onChange={handleTableChange} loading={loading} size="small"/>
         </div>
