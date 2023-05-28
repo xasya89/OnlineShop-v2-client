@@ -25,6 +25,8 @@ import PrintPriceTagsPageAction from './pages/goods/PrintPriceTagsPage/PrintPric
 import SuppliersPage from './pages/SuppliersPage/SuppliersPage';
 import ArrivalEditPage from './pages/ArrivalEditPage/ArrivalEditPage';
 import ArrivalListPage from './pages/ArrivalListPage/ArrivalListPage';
+import WriteofListPage from './pages/WriteofListPage/WriteofListPage';
+import WriteOfPage from './pages/WriteofPage/WriteofPage';
 
 document.title = "Online shop v2";
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -95,6 +97,14 @@ const router = createBrowserRouter([
         path:"documents/arrivals",
         element: <Auth><ArrivalListPage /></Auth>
       },
+      {
+        path:"documents/writeofs",
+        element: <Auth><WriteofListPage /></Auth>
+      },
+      {
+        path: "documents/writeofs/:id",
+        element: <Auth><WriteOfPage /></Auth>
+      }
     ],
     errorElement: <NotFoundPage />
   }
