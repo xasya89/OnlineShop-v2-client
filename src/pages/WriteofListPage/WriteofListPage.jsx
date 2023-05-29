@@ -47,7 +47,9 @@ const WriteofListPage = () => {
         setTableParams(prev=>({...prev, pagination: {...prev.pagination, total: resp.data.total} }))
     }
 
-    useEffect(() => fetchData(), [])
+    useEffect(() => {
+        fetchData()
+    }, [])
 
     const handleTableChange = (pagination, filters, sorter) => {
         fetchData(pagination.current);

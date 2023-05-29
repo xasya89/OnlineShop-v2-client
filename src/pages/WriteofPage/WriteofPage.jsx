@@ -7,8 +7,31 @@ import GoodChooseComponent from '../../components/GoodChooseComponent/GoodChoose
 import $api from '../../http/api';
 import styles from './WriteofPage.module.scss';
 import dayjs from 'dayjs';
+import { GenerateUuuid4 } from '../../features/generateUuid';
 
 const { TextArea  } = Input;
+
+let setWriteofRef = null;
+const changeCount = (goodId, value) => {
+    if(setWriteofRef===null) return;
+    setWriteofRef(prev => ({...prev,  writeofGoods: prev.writeofGoods.map(pos => {
+        if(pos.goodId === goodId)
+            pos.count = value;
+        return {...pos}
+    }) }))
+}
+
+const calcSum = pos => {
+    try{
+        const price = parseFloat(pos.price);
+        const count = parseFloat(pos.count.replace(",","."));
+        if(isNaN(price) || isNaN(count))
+            return 0;
+        return price * count;
+    }
+    catch(ex){}
+    return 0;
+}
 
 const columns = [
     {
@@ -38,32 +61,11 @@ const columns = [
     }
 ]
 
-let setWriteofRef = null;
-const changeCount = (goodId, value) => {
-    setWriteofRef(prev => ({...prev,  writeofGoods: prev.writeofGoods.map(pos => {
-        if(pos.goodId === goodId)
-            pos.count = value;
-        return {...pos}
-    }) }))
-}
-
-const calcSum = pos => {
-    try{
-        const price = parseFloat(pos.price);
-        const count = parseFloat(pos.count.replace(",","."));
-        if(isNaN(price) || isNaN(count))
-            return 0;
-        return price * count;
-    }
-    catch(ex){}
-    return 0;
-}
-
 const WriteOfPage = () => {
     const shop = useSelector(state=>state.shop.value);
     const {id} = useParams();
     const navigate = useNavigate();
-    const [writeof, setWriteof] = useState({id: id, status: 2, dateWriteof: dayjs() ,shopId: shop?.id, note: "", writeofGoods: []})
+    const [writeof, setWriteof] = useState({id: parseInt(id), status: 2, dateWriteof: dayjs() ,shopId: shop?.id, note: "", writeofGoods: []})
     setWriteofRef = setWriteof;
     const noteInpRef = useRef();
 
@@ -72,22 +74,28 @@ const WriteOfPage = () => {
             if(id==0) return;
             const resp = await $api.get(`/${shop?.id}/writeofs/${id}`);
             resp.data.dateWriteof = dayjs(resp.data.dateWriteof, "DD.MM.YY");
+            resp.data.writeofGoods = resp.data.writeofGoods.map(p=> {
+                p.uuid = GenerateUuuid4();
+                return p;
+            });
             setWriteof(resp.data);
         }
         fetchData();
     }, [])
 
     const save = async () => {
-        const respData = {...writeof, id: parseInt(id), dateWriteof: writeof.dateWriteof.format("DD.MM.YYYY"), note: noteInpRef.current.value, sumAll:0, writeofGoods: writeof.writeofGoods.map(pos => {
+        const respData = {...writeof, id: writeof.id, dateWriteof: writeof.dateWriteof.format("DD.MM.YYYY"), note: noteInpRef.current.value, sumAll:0, writeofGoods: writeof.writeofGoods.map(pos => {
             let price = parseFloat(pos.price);
-            let count = parseFloat(pos.count.replace(",","."));
+            let count = pos.count;
+            if(typeof pos.count !== "number")
+                count = parseFloat(pos.count.replace(",","."));
             price = isNaN(price) ? 0 : price;
             count = isNaN(count) ? 0 : count;
             return {...pos, price: price, count: count};
         })}
         respData.status = 2;
         respData.sumAll = 0;
-        respData.note = "";
+        respData.note = noteInpRef.current.value;
         let result = null;
         if(respData.id===0)
             result = await $api.post(`/${shop?.id}/writeofs`, respData);
@@ -107,7 +115,8 @@ const WriteOfPage = () => {
             unitStr: g.unitStr,
             price: g.price,
             count: "0",
-            sum: 0
+            sum: 0,
+            uuid: GenerateUuuid4()
         })).flat();
         setWriteof(prev => ({...prev, writeofGoods: prev.writeofGoods.concat(newPositions) }))
     }
@@ -131,11 +140,10 @@ const WriteOfPage = () => {
                 <label>Общая сумма: {calcSumAll()}</label>
             </div>
             <GoodChooseComponent onChoosed={addPositions} />
-            <Table columns={columns} dataSource={writeof.writeofGoods} pagination={null} size="small" />
+            <Table rowKey={x=>x.uuid} columns={columns} dataSource={writeof.writeofGoods} pagination={null} size="small" />
             <div className={styles.space}></div>
             <div>
-                <label>Примечание</label>
-                <TextArea ref={noteInpRef} rows={4} value="23"/>
+                <textarea ref={noteInpRef} rows={4} value="23" placeholder='примечаение' style={{width: "100%"}}/>
             </div>
         </div>
     )

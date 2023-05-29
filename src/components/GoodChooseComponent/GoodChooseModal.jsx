@@ -85,9 +85,17 @@ export default function GoodChooseModal({onSelected}) {
     useEffect(() => {
         const getGoods = async () => {
             setLoading(true);
-            const resp = await $api.get(`/${shop?.id}/goods?skipDeleted=true&groups=${selectGroupId}&page=1&count=500`);
-            setGoods(resp.data.goods);
-            setLoading(false);
+            try{
+                const groupsQuery = selectGroupId == null ? "" : `&groups=${selectGroupId}`;
+                const resp = await $api.get(`/${shop?.id}/goods?skipDeleted=true${groupsQuery}&page=1&count=500`);
+                setGoods(resp.data.goods);
+            }
+            catch(ex){
+
+            }
+            finally{
+                setLoading(false);
+            }
         };
         getGoods();
     }, [selectGroupId])
