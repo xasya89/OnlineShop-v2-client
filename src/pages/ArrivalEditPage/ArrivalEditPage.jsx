@@ -43,18 +43,18 @@ const columns = [
     {
         title: "Товар",
         dataIndex: "goodName",
-        render: (_, record) => {record.isDelete ? 
+        render: (_, record) =>  <>{!record.isDelete ? 
             <span>{record.goodName}</span> :
             <span style={{textDecoration: "line-through"}}>{record.goodName}</span>
-        }
+        }</>
     },
     {
         title: "Ед",
         dataIndex: "unit",
-        render: (_, record) => {record.isDelete ? 
+        render: (_, record) => <>{!record.isDelete ? 
             <span>{record.unit}</span> :
             <span style={{textDecoration: "line-through"}}>{record.unit}</span>
-        }
+        }</>
     },
     {
         title: "Цена закуп",
@@ -168,7 +168,12 @@ const ArrivalEditPage = () => {
             const resp = await $api.get(`/${shop?.id}/arrivals/${id}`);
             const {num, dateArrival, supplierId, arrivalGoods, legacyId} = resp.data;
             setArrivalHeader({...arrivalHeader, id, num, dateArrival: dayjs(dateArrival,'DD.MM.YY'), supplierId, legacyId});
-            setPositions(arrivalGoods);
+            const positions = arrivalGoods.map(pos=>{
+                pos.isDelete = false;
+                pos.uuid = GenerateUuuid4();
+                return pos;
+            })
+            setPositions(positions);
         }
         getArrival();
     }, [id]);
