@@ -27,6 +27,9 @@ import ArrivalEditPage from './pages/ArrivalEditPage/ArrivalEditPage';
 import ArrivalListPage from './pages/ArrivalListPage/ArrivalListPage';
 import WriteofListPage from './pages/WriteofListPage/WriteofListPage';
 import WriteOfPage from './pages/WriteofPage/WriteofPage';
+import MoneyReportPage from './pages/Reports/MoneyReport/MoneyReportPage';
+import ShiftListReportPage from './pages/Reports/ShiftListReportPage/ShiftListReportPage';
+import ShiftOneReportPage from './pages/Reports/ShiftOneReportPage/ShiftOneReportPage';
 
 document.title = "Online shop v2";
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -104,7 +107,19 @@ const router = createBrowserRouter([
       {
         path: "documents/writeofs/:id",
         element: <Auth><WriteOfPage /></Auth>
-      }
+      },
+      {
+        path: "reports/money",
+        element: <Auth><MoneyReportPage /></Auth>
+      },
+      {
+        path: "reports/shifts",
+        element: <Auth><ShiftListReportPage /></Auth>
+      },
+      {
+        path: "reports/shifts/:id",
+        element: <Auth><ShiftOneReportPage /></Auth>
+      },
     ],
     errorElement: <NotFoundPage />
   }

@@ -34,6 +34,15 @@ export default function Header({isVisible}){
                             <li><NavLink to="/documents/writeofs" className={handleHoverLink}>Списания</NavLink></li>
                         </ul>
                     </li>
+                    <li>
+                        Отчеты
+                        <ul>
+                            <li><NavLink to="/reports/money" className={handleHoverLink}>По дням</NavLink></li>
+                        </ul>
+                        <ul>
+                            <li><NavLink to="/reports/shifts" className={handleHoverLink}>Счены</NavLink></li>
+                        </ul>
+                    </li>
                 </ul>
             </header>
         )
