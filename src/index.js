@@ -40,39 +40,39 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <Main />,
+    element: <Auth><Main /></Auth>,
     children: [
       {
         index: true,
-        element: <Auth><MainPage /></Auth>
+        element: <MainPage />
       },
       {
         path:"goods",
-        element:<Auth><GoodListPage /></Auth>
+        element:<GoodListPage />
       },
       {
         path:"goodedit/:id",
-        element: <Auth><GoodEditPage /></Auth>
+        element: <GoodEditPage />
       },
       {
         path: "goodedit",
-        element: <Auth><GoodEditPage /></Auth>
+        element: <GoodEditPage />
       },
       {
         path: "goodsPrintBalance",
-        element: <Auth><GoodsPrintBalancePage /></Auth>
+        element: <GoodsPrintBalancePage />
       },
       {
         path: `goodgroups`,
-        element: <Auth><GroupsPage /></Auth>
+        element: <GroupsPage />
       },
       {
         path: "goodsPrintPriceTags",
-        element: <Auth><PrintPriceTagsPage /></Auth>
+        element: <PrintPriceTagsPage />
       },
       {
         path:"documents/inventorylist",
-        element: <Auth><InventoryListPage /></Auth>
+        element: <InventoryListPage />
       },
       /*
       {
@@ -82,43 +82,43 @@ const router = createBrowserRouter([
       */
       {
         path:"suppliers",
-        element: <Auth><SuppliersPage /></Auth>
+        element: <SuppliersPage />
       },
       {
         path:"documents/inventory-view/:id?",
-        element: <Auth><InventoryViewPage /></Auth>
+        element: <InventoryViewPage />
       },
       {
         path:"documents/inventory/:id?",
-        element: <Auth><InventoryPage /></Auth>
+        element: <InventoryPage />
       },
       {
         path:"documents/arrivals/:id",
-        element: <Auth><ArrivalEditPage /></Auth>
+        element: <ArrivalEditPage />
       },
       {
         path:"documents/arrivals",
-        element: <Auth><ArrivalListPage /></Auth>
+        element: <ArrivalListPage />
       },
       {
         path:"documents/writeofs",
-        element: <Auth><WriteofListPage /></Auth>
+        element: <WriteofListPage />
       },
       {
         path: "documents/writeofs/:id",
-        element: <Auth><WriteOfPage /></Auth>
+        element: <WriteOfPage />
       },
       {
         path: "reports/money",
-        element: <Auth><MoneyReportPage /></Auth>
+        element: <MoneyReportPage />
       },
       {
         path: "reports/shifts",
-        element: <Auth><ShiftListReportPage /></Auth>
+        element: <ShiftListReportPage />
       },
       {
         path: "reports/shifts/:id",
-        element: <Auth><ShiftOneReportPage /></Auth>
+        element: <ShiftOneReportPage />
       },
     ],
     errorElement: <NotFoundPage />

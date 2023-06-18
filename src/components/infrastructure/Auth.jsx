@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { redirect, useNavigate, useNavigation } from "react-router-dom";
+import LoginPage from "../../pages/login-page/LoginPage";
 import { fetchUserByRefresh } from "../../redux/userSlice";
 
 let countRepeat = 0;
@@ -8,18 +9,27 @@ let countRepeat = 0;
 export default function Auth({ children }){
     const user = useSelector(state => state.user.value);
     const status = useSelector(state => state.user.status);
+    const [authorizeFlag, setAuthorizeFlag] = useState(true);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    useEffect(()=>{
-        countRepeat++;
+    
+    useLayoutEffect(() => {
+        /*
         if(user==null && localStorage.getItem("user-remember") && status!=="refresh-error"){
             dispatch(fetchUserByRefresh());
         }
-        if(countRepeat>3)
-            navigate("/login");
         if((user == null & !localStorage.getItem("user-remember")) || status==="refresh-error")
-            navigate("/login");
-    }, [user, status])
+            setAuthorizeFlag(false);
+        */
+        if(status==="refresh-error")
+            setAuthorizeFlag(false);
+        if(!sessionStorage.getItem("user-id"))
+            setAuthorizeFlag(false);
+        else
+            setAuthorizeFlag(true);
+    }, [user]);
+    if(!authorizeFlag)
+        return <LoginPage />
 
     return children;
 }

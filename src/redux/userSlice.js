@@ -40,13 +40,16 @@ const userSlice = createSlice({
     extraReducers: {
         [fetchUser.fulfilled]: (state, action) => {
             state.value = action.payload;
+            state.status = "success";
             sessionStorage.setItem("user-id",action.payload.token);
         },
         [fetchUser.rejected]: (state, action) => {
             state.status = "error";
+            state.value = null;
         },
         [fetchUserByRefresh.fulfilled]: (state, action) => {
             state.value = action.payload;
+            state.status = "success";
             sessionStorage.setItem("user-id",action.payload.token);
         },
         [fetchUserByRefresh.rejected]: (state, action) => {
