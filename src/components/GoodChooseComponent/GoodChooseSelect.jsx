@@ -4,7 +4,7 @@ import AsyncSelect from "react-select/async";
 import $api from "../../http/api";
 
 export default function GoodChooseSelect({onSelected}){
-    const shopId = useSelector(state => state.shop.value.id);
+    const shopId = useSelector(state => state.shop.value?.id);
     const searchGoods = useCallback( ( inputValue, callback ) => {
         $api.get(`/goodsearch?search=${inputValue}`)
         .then(resp => callback(resp.data.map(good=> ({value: good.id, label: good.name})  )))

@@ -1,11 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
 import GoodsPage from './pages/goods-page/GoodsPage';
-import Main from './components/main/Main';
 import NotFoundPage from './pages/not-found-page/NotFoundPage';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -30,6 +29,7 @@ import WriteOfPage from './pages/WriteofPage/WriteofPage';
 import MoneyReportPage from './pages/Reports/MoneyReport/MoneyReportPage';
 import ShiftListReportPage from './pages/Reports/ShiftListReportPage/ShiftListReportPage';
 import ShiftOneReportPage from './pages/Reports/ShiftOneReportPage/ShiftOneReportPage';
+import LayoutComponent from './layoutComponent';
 
 document.title = "Online shop v2";
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -40,7 +40,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <Auth><Main /></Auth>,
+    element: <Auth><LayoutComponent /></Auth>,
     children: [
       {
         index: true,
@@ -128,7 +128,7 @@ root.render(
     <Provider store={store}>
       <PersistGate persistor={persistor} loading={null}>
         <RouterProvider router={router}>
-          <Main />
+          <LayoutComponent />
         </RouterProvider>
       </PersistGate>
     </Provider>

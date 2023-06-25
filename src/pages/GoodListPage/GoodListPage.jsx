@@ -141,7 +141,7 @@ const GoodListPage = () => {
                     </Dropdown>
                 </Space>
                 <Space direction='horizontal'>
-                    <GoodGroups shopId={shop.id} setSelectGroups={setSelectGroups} />
+                    <GoodGroups shopId={shop?.id} setSelectGroups={setSelectGroups} />
                 </Space>
                 <Space direction='horizontal' >
                     
