@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, useNavigation } from 'react-router-dom';
-import { Layout, Menu, Select } from 'antd';
+import { Button, Layout, Menu, Select } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import Sider from 'antd/es/layout/Sider';
 import { useDispatch, useSelector } from 'react-redux';
@@ -70,6 +70,14 @@ export default function LayoutComponent () {
 
     const selectShop = shop == null ? -1: shop?.id;
     const shopsKeyValue = shops.map(x=>({value: x.id, label: x.alias}));
+
+    if(shop==null)
+        return <div style={{textAlign: "center"}}>
+            <h4 style={{margin: "20px"}}>Выберите магазин</h4>
+            {shops.map(s=><div style={{marginBottom: "20px"}}><Button onClick={_=>changeSelectShop(s.id)}>{s.alias}</Button></div>)}
+        </div>
+
+
     return (
         <Layout>
             <Sider collapsedWidth="0" breakpoint="lg" theme="light"> 
